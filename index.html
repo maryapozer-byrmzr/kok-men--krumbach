@@ -418,6 +418,7 @@ const CATS=[
  {id:"fastfood",name:"Fastfood",img:"pommes",sub:"Pommes & Co.",alg:"",items:[
   ["52","Pommes","mit Ketchup oder Mayo",6.5,"pommes",1]]}
 ];
+let io;
 const eur=n=>n.toFixed(2).replace(".",",")+" €";
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -457,7 +458,6 @@ render();
 let t;$("#q").addEventListener("input",e=>{clearTimeout(t);t=setTimeout(()=>{render(e.target.value);if(e.target.value.trim())$("#karte").scrollIntoView({behavior:"smooth"})},250)});
 
 // scroll spy
-let io;
 function spy(){
   io?.disconnect();
   io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){

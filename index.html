@@ -79,6 +79,7 @@ h1 .city{display:block;font-size:.42em;letter-spacing:.14em;color:var(--ink);mar
 .search input{width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:16px 18px 16px 50px;font:inherit;font-size:16px;transition:border-color .2s,box-shadow .2s}
 .search input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 5px color-mix(in srgb,var(--gold) 22%,transparent)}
 .search svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:20px;height:20px;stroke:var(--gold-ink)}
+.hits{margin-top:10px;border:0;background:none;padding:4px 2px;font-weight:800;font-size:15px;color:var(--gold-ink);text-decoration:underline;text-underline-offset:4px}
 .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 20px;border-radius:14px;font-weight:800;text-decoration:none;border:1.5px solid var(--line);background:var(--bg);font-size:15px;transition:transform .2s}
 .btn:hover{transform:translateY(-2px)}
@@ -258,6 +259,7 @@ footer .demo{font-weight:700;color:var(--gold-ink)}
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="q" type="search" placeholder="Gericht suchen, z. B. Pide oder Hawaii" autocomplete="off" aria-label="Speisekarte durchsuchen">
         </label>
+        <button class="hits" id="hits" type="button" hidden></button>
         <div class="hero-cta">
           <a class="btn gold" href="#karte">Zur Speisekarte</a>
           <a class="btn" href="#info">Anfahrt &amp; Zeiten</a>
@@ -435,11 +437,14 @@ document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g
 // menu
 function itemAlg(c,it){return typeof it[5]==="string"?it[5]:c.alg}
 function isVeg(it){return it[5]===1||it[6]===1}
+const norm=s=>String(s).toLowerCase().replace(/ß/g,"ss").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ");
+const ALIAS={doner:"drehspiess",doener:"drehspiess",kebab:"drehspiess",kebap:"drehspiess",gyros:"drehspiess",hahnchen:"drehspiess",chicken:"drehspiess",durum:"yufka",wrap:"yufka",veggie:"vegetarisch",vegan:"vegetarisch",fries:"pommes",pizzen:"pizza",salad:"salat"};
+function terms(q){return norm(q).split(/\s+/).filter(Boolean).map(w=>ALIAS[w]||w)}
 function render(q=""){
-  q=q.trim().toLowerCase();
+  const ts=terms(q);
   let html="",hits=0;
   CATS.forEach(c=>{
-    const list=c.items.filter(it=>!q||(it[1]+" "+it[2]+" "+c.name+" "+it[0]).toLowerCase().includes(q));
+    const list=c.items.filter(it=>{if(!ts.length)return true;const hay=norm(it[1]+" "+it[2]+" "+c.name+" "+c.id+" "+it[0]+(isVeg(it)?" vegetarisch":""));return ts.every(t=>hay.includes(t)||(t==="yufka"&&hay.includes("durum")))});
     if(!list.length)return; hits+=list.length;
     html+=`<section class="menu-sec" id="sec-${c.id}" data-sec="${c.id}">
       <div class="eyebrow">${list.length} ${list.length===1?"Gericht":"Gerichte"}</div><h2>${esc(c.name)}</h2>
@@ -451,11 +456,15 @@ function render(q=""){
       ${c.extra?`<div class="sec-extra"><b>+</b> ${esc(c.extra)}</div>`:""}
     </section>`;
   });
-  $("#karte").innerHTML=html||`<div class="empty">Nichts gefunden für „${esc(q)}“. Versuch es mit Pizza, Pide oder Drehspieß.</div>`;
+  const h=$("#hits");if(ts.length){h.hidden=false;h.textContent=hits?`${hits} ${hits===1?"Treffer":"Treffer"} anzeigen ↓`:"Keine Treffer";h.disabled=!hits}else{h.hidden=true}
+  $("#karte").innerHTML=html||`<div class="empty">Nichts gefunden für „${esc(q.trim())}“. Versuch es mit Pizza, Pide oder Drehspieß.</div>`;
   spy();
 }
 render();
-let t;$("#q").addEventListener("input",e=>{clearTimeout(t);t=setTimeout(()=>{render(e.target.value);if(e.target.value.trim())$("#karte").scrollIntoView({behavior:"smooth"})},250)});
+let t;const goRes=()=>{$("#q").blur();$("#karte").scrollIntoView({behavior:"smooth"})};
+$("#q").addEventListener("input",e=>{clearTimeout(t);t=setTimeout(()=>render(e.target.value),180)});
+$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();clearTimeout(t);render(e.target.value);goRes()}});
+$("#hits").addEventListener("click",goRes);
 
 // scroll spy
 function spy(){

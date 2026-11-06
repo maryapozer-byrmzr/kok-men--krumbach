@@ -7,6 +7,8 @@
 <link rel="icon" href="img/logo.png">
 <title>King of Kebap Krumbach</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#ffffff">
 <meta name="description" content="King of Kebap Krumbach – Drehspieß, Pizza aus dem Steinofen, Pide, Lahmacun und Calzone. Bahnhofstr. 55, 86381 Krumbach.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,15 +32,8 @@
   --body:"Figtree","Segoe UI",system-ui,sans-serif;
   --goldgrad:linear-gradient(115deg,var(--gold-lo) 0%,var(--gold) 22%,var(--gold-hi) 45%,var(--gold) 62%,var(--gold-lo) 100%);
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#120e09;--surface:#1c1610;--ink:#f6efe2;--muted:#b4a58c;--line:#2e2519;
-  --gold:#d9a93f;--gold-hi:#f6dc8e;--gold-lo:#9c6d1d;--gold-ink:#f0c860;--red:#ef3b42;--on-gold:#1c140a;
-  --shadow:0 18px 40px -22px rgba(0,0,0,.8);color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#120e09;--surface:#1c1610;--ink:#f6efe2;--muted:#b4a58c;--line:#2e2519;
-  --gold:#d9a93f;--gold-hi:#f6dc8e;--gold-lo:#9c6d1d;--gold-ink:#f0c860;--red:#ef3b42;--on-gold:#1c140a;
-  --shadow:0 18px 40px -22px rgba(0,0,0,.8);color-scheme:dark}
-
+/* bewusst nur helles Design: immer weiß, auch im Dark Mode des Handys */
+:root,:root[data-theme="dark"]{color-scheme:light}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:120px}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;overflow-x:hidden}
